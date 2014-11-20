@@ -1,0 +1,20 @@
+{
+  "name": "cd-agent",
+  "version": "0.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "dependencies": {
+    "mucbuc-jsthree": "*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mucbuc/cd-agent.git"
+  },
+  "author": "mark busenitz",
+  "license": "GNU"
+}

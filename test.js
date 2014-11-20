@@ -3,47 +3,50 @@
 var assert = require( 'assert' )
   , events = require( 'events' )
   , path = require( 'path')
-  , CD_Agent = require( './index.js' )
+  , CD_Agent = require( './index.js' );
 
 assert( typeof CD_Agent !== 'undefined' );
 
-testCD();
+suite( 'cd-agent', testCD ); 
 
 function testCD() {
-	var e = new events.EventEmitter()
-	  , agent = new CD_Agent( e )
+	var e
+	  , agent
 	  , passedCount = 0
-	  , expectedCount = 0
-	  , result;
+	  , expectedCount = 0;
 
-	process.on( 'exit', function() {
-		assert( passedCount == expectedCount );
-		console.log( 'cd_agent test passed' );
+	setup(function(){
+		e = new events.EventEmitter();
+		agent = new CD_Agent( e );
 	});
 
-	// test cd
-	expectCWD();
-	result = agent.process( ['cd'] );
-	assert( result );
+	teardown(function(){
+		assert( passedCount == expectedCount );
+	});
 
-	// test cd ~
-	expectCWD();
-	result = agent.process( ['cd', '~'] );
-	assert( result );
-	
-	// test cd /
-	expectPath( '/' );
-	result = agent.process( ['cd', '/'] );
-	assert( result );
+	test( 'cd', function() {
+		expectCWD();
+		assert( agent.process( ['cd'] ) );
+	});
 
-	// test cd folder
-	expectPath( path.join( __dirname, 'sample' ) );
-	result = agent.process( ['cd', 'sample'], __dirname );
-	assert( result );
+	test( 'cd ~', function() {
+		expectCWD();
+		assert( agent.process( ['cd', '~'] ) );
+	});
 
-	// test garbage
-	result = agent.process( ['cdsadf'] );
-	assert( !result );
+	test( 'cd /', function() {
+		expectPath( '/' );
+		assert( agent.process( ['cd', '/'] ) );
+	}); 
+
+	test( 'cd folder', function() {
+		expectPath( path.join( __dirname, 'sample' ) );
+		assert( agent.process( ['cd', 'sample'], __dirname ) );
+	});
+
+	test( 'cd garbage', function() {
+		assert( !agent.process( ['cdsadf'] ) );
+	});
 
 	function expectPath(expected) {	
 		e.once( 'cwd', function(path) { 

@@ -5,46 +5,42 @@ var assert = require( 'assert' )
 
 function CD_Agent( controller ) {
 
-  var instance = this
-    , root = process.cwd();
+  var root = process.cwd()
+    , cwd = root; 
 
-  this.process = function(args, cwd) {
+  this.request = function( req, res ) {
 
-    assert( args.length );
+    assert(   res.hasOwnProperty( 'argv' ) 
+          &&  res.argv.length 
+          &&  res.argv[0] == 'cd' );
 
-    if (args[0] != 'cd')
-      return false;
-
-    if (args.length == 1) {
-      sendPathInfo( root );
+    if (res.argv.length == 1) {
+      setCwd( root );
+      res.end();
     }
-    else if (args.length >= 2) {
-      if (args[1] == '~') {
-        sendPathInfo( root );
+    else if (res.argv.length >= 2) {
+      if (res.argv[1] == '~') {
+        setCwd( root );
+        res.end();
       }
-      else if (args[1] == '/') {
-        sendPathInfo( '/' );
+      else if (res.argv[1] == '/') {
+        setCwd( '/' );
+        res.end();
       }
       else {
-        var base = typeof cwd === 'undefined' ? root : cwd
-          , trail = args.length >= 2 ? args[1] : ''
-          , abs = path.join( base, trail );
-
+        var abs = path.join( cwd, res.argv[1] );
         fs.exists( abs, function( exist ) {
           if (exist) {
-            sendPathInfo( abs );
+            setCwd(abs);
           }
+          res.end();
         } );
       }
     }
-    return true;
   };
 
-  this.listContents = function(dir) {
-    sendPathInfo( dir );
-  };
-
-  function sendPathInfo( dir ) {
+  function setCwd( dir ) {
+    cwd = dir;
     controller.emit( 'cwd', dir );
     js3.DirScout.getList( controller, dir );
   }

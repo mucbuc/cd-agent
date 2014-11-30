@@ -6,7 +6,18 @@ var assert = require( 'assert' )
 function CD_Agent( controller ) {
 
   var root = process.cwd()
-    , cwd = root; 
+    , cwd = root
+    , instance = this;
+
+  this.__defineGetter__( 'cwd', function() {
+    return cwd;
+  });
+
+  this.__defineSetter__( 'cwd', function(dir) {
+    cwd = dir;
+    controller.emit( 'cwd', cwd );
+    js3.DirScout.getList( controller, cwd ); 
+  });
 
   this.request = function( req, res ) {
 
@@ -15,35 +26,34 @@ function CD_Agent( controller ) {
           &&  res.argv[0] == 'cd' );
 
     if (res.argv.length == 1) {
-      setCwd( root );
-      res.end();
+      respond(root);
     }
     else if (res.argv.length >= 2) {
       if (res.argv[1] == '~') {
-        setCwd( root );
-        res.end();
+        respond(root);
       }
       else if (res.argv[1] == '/') {
-        setCwd( '/' );
-        res.end();
+        respond( '/' );
       }
       else {
         var abs = path.join( cwd, res.argv[1] );
         fs.exists( abs, function( exist ) {
           if (exist) {
-            setCwd(abs);
+            respond(abs);
           }
-          res.end();
+          else {
+            res.end();
+          }
         } );
       }
     }
-  };
 
-  function setCwd( dir ) {
-    cwd = dir;
-    controller.emit( 'cwd', dir );
-    js3.DirScout.getList( controller, dir );
-  }
+    function respond(cwd) {
+      instance.cwd = cwd;
+      delete res.argv;
+      res.end();
+    }
+  };
 };
 
 module.exports = CD_Agent;

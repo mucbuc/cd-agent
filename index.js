@@ -1,14 +1,12 @@
 var assert = require( 'assert' )
   , fs = require( 'fs' )
   , path = require( 'path' )
-  , events = require( 'events' )
   , js3 = require( 'mucbuc-jsthree' );
 
-function CD_Agent() {
+function CD_Agent( controller ) {
 
   var instance = this
-    , controller = new events.EventEmitter() // this shoud be cleaned up
-    , cwd;
+    , cwd = root();
 
   this.__defineGetter__( 'cwd', function() {
     return cwd;
@@ -16,6 +14,7 @@ function CD_Agent() {
 
   this.__defineSetter__( 'cwd', function(dir) {
     cwd = dir;
+    controller.emit( 'cwd', cwd );
     js3.DirScout.getList( controller, cwd );
   });
 
@@ -52,15 +51,15 @@ function CD_Agent() {
     function respond(cwd) {
       
       controller.once( 'ls', function(list) {
+        delete res.argv;
+        res.cwd = instance.cwd;
         res.context = list;  
         res.end();
       });
 
-      res.cwd = instance.cwd = cwd;
+      instance.cwd = cwd;
     }
   };
-
-  this.cwd = root();
 
   function root() {
     return process.cwd();

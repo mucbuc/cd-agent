@@ -24,17 +24,15 @@ function testCD() {
   });
 
   test( 'cwd init', function() {
-   assert( typeof agent.cwd !== 'undefined' ); 
+    assert( agent.cwd === process.cwd() ); 
   });
 
   test( 'cd', function() {
-    assert( agent.cwd === process.cwd() );
     expectCWD();
     makeSplitRequest( ['cd'] );
   });
 
   test( 'cd ~', function() {
-    assert( agent.cwd === process.cwd() );
     expectCWD();
     makeSplitRequest( ['cd', '~'] );
   });

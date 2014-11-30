@@ -3,7 +3,8 @@
   "version": "0.0.2",
   "main": "index.js",
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "*", 
+    "expector": "*"
   },
   "dependencies": {
     "mucbuc-jsthree": "*"

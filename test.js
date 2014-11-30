@@ -3,68 +3,76 @@
 var assert = require( 'assert' )
   , events = require( 'events' )
   , path = require( 'path')
-  , CD_Agent = require( './index.js' );
+  , CD_Agent = require( './index.js' )
+  , Expector = require( 'expector' ).Expector
+  , util = require( 'util' );
 
 assert( typeof CD_Agent !== 'undefined' );
+assert( typeof Expector !== 'undefined' );
 
 suite( 'cd-agent', testCD ); 
 
 function testCD() {
-	var e
-	  , agent
-	  , passedCount = 0
-	  , expectedCount = 0; 
+  var e
+    , agent
+    , passedCount = 0
+    , expectedCount = 0; 
 
-	setup(function(){
-		e = new events.EventEmitter();
-		agent = new CD_Agent( e );
-	});
+  setup(function(){
+    e = new Expector();
+    agent = new CD_Agent( e );
+  });
 
-	teardown(function(){
-		assert( passedCount == expectedCount );
-	});
+  test( 'cwd init', function() {
+   assert( typeof agent.cwd !== 'undefined' ); 
+  });
 
-	test( 'cd', function() {
-		expectCWD();
-		agent.request( {}, makeResponse( ['cd'] ) );
-	});
+  test( 'cd', function() {
+    assert( agent.cwd === process.cwd() );
+    expectCWD();
+    makeSplitRequest( ['cd'] );
+  });
 
-	test( 'cd ~', function() {
-		expectCWD();
-		 ;
-		agent.request( {}, makeResponse( ['cd', '~'] ) );
-	});
+  test( 'cd ~', function() {
+    assert( agent.cwd === process.cwd() );
+    expectCWD();
+    makeSplitRequest( ['cd', '~'] );
+  });
 
-	test( 'cd /', function() {
-		expectPath( '/' );
-		agent.request( {}, makeResponse( ['cd', '/'] ) );
-	}); 
+  test( 'cd /', function() {
+   e.expect( 'cwd', '/' );
+   makeSplitRequest( ['cd', '/'] );
+  }); 
 
-	test( 'cd folder', function() {
-		expectPath( path.join( __dirname, 'sample' ) );
-		agent.request( {}, makeResponse( ['cd', 'sample' ] ) );
-	});
+  test( 'cd folder', function() {
+    e.expect( 'cwd', path.join( __dirname, 'sample' ) );
+    e.expect( 'ls', [] );
+    makeSplitRequest( ['cd', 'sample' ] );
+  });
 
-	function makeResponse( argv ) {
-		return {
-			argv: argv,
-			end: function() {}
-		};
-	}
-
-	function expectPath(expected) {	
-		e.once( 'cwd', function(path) { 
-			assert( path == expected );
-			++passedCount;
-		});
-		++expectedCount;
-	}
-	
-	function expectCWD() {	
-		expectPath( __dirname );
-		// e.once( 'ls', function(list) {
-		// 	assert( list.indexOf( 'test.js' ) != -1 );
-		// });
-	}
+  function makeSplitRequest( argv ) {
+    agent.request( 
+      {}, 
+      {
+        argv: argv,
+        end: function() {
+          process.nextTick( e.check );
+        }
+      });
+  }
+  
+  function expectCWD() {  
+    e.expect( 'cwd', process.cwd() );
+    e.expect( 'ls', [ 
+      '.git',
+      '.gitignore',
+      'LICENSE',
+      'README.md',
+      'index.js',
+      'node_modules',
+      'package.json',
+      'sample',
+      'test.js' ] );
+  }
 }
 

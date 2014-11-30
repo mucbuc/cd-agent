@@ -1,7 +1,6 @@
 var assert = require( 'assert' )
   , fs = require( 'fs' )
-  , path = require( 'path' )
-  , js3 = require( 'mucbuc-jsthree' );
+  , path = require( 'path' );
 
 function CD_Agent( controller ) {
 
@@ -15,7 +14,12 @@ function CD_Agent( controller ) {
   this.__defineSetter__( 'cwd', function(dir) {
     cwd = dir;
     controller.emit( 'cwd', cwd );
-    js3.DirScout.getList( controller, cwd );
+    fs.readdir( cwd, function( err, files ) {
+      if (err) {
+        console.log( err );
+      }
+      controller.emit( 'ls', files.sort() );
+    });
   });
 
   this.request = function( req, res ) {

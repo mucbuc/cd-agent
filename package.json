@@ -6,9 +6,6 @@
     "mocha": "*", 
     "expector": "*"
   },
-  "dependencies": {
-    "mucbuc-jsthree": "*"
-  },
   "scripts": {
     "test": "mocha -u tdd --recursive"
   },

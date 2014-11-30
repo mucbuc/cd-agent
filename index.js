@@ -53,14 +53,7 @@ function CD_Agent( controller ) {
     }
 
     function respond(cwd) {
-      
-      controller.once( 'ls', function(list) {
-        delete res.argv;
-        res.cwd = instance.cwd;
-        res.context = list;  
-        res.end();
-      });
-
+      res.end();
       instance.cwd = cwd;
     }
   };

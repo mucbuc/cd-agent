@@ -54,7 +54,7 @@ function testCD() {
       {
         argv: argv,
         end: function() {
-          process.nextTick( e.check );
+          process.on( 'exit', e.check );
         }
       });
   }

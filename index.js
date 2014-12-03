@@ -2,59 +2,52 @@ var assert = require( 'assert' )
   , fs = require( 'fs' )
   , path = require( 'path' );
 
-function CD_Agent( controller ) {
+function CD_Agent() {
 
-  var instance = this
-    , cwd = root();
+  var cwd = root();
 
   this.__defineGetter__( 'cwd', function() {
     return cwd;
   });
 
-  this.__defineSetter__( 'cwd', function(dir) {
-    cwd = dir;
-    controller.emit( 'cwd', cwd );
-    fs.readdir( cwd, function( err, files ) {
-      if (err) {
-        console.log( err );
-      }
-      controller.emit( 'ls', files.sort() );
-    });
-  });
-
-  this.request = function( req, res ) {
+  this.eval = function( argv, done ) {
     
-    assert(   res.hasOwnProperty( 'argv' ) 
-          &&  res.argv.length 
-          &&  res.argv[0] == 'cd'
-          &&  typeof cwd !== 'undefined' );
+    if (    !argv.length 
+        ||  argv[0] != 'cd') {
+      done();
+      return;
+    }
 
-    if (res.argv.length == 1) {
+    if (argv.length == 1) {
       respond(root());
     }
-    else if (res.argv.length >= 2) {
-      if (res.argv[1] == '~') {
+    else if (argv.length >= 2) {
+      if (argv[1] == '~') {
         respond(root());
       }
-      else if (res.argv[1] == '/') {
+      else if (argv[1] == '/') {
         respond( '/' );
       }
       else {
-        var abs = path.join( cwd, res.argv[1] );
+        var abs = path.join( cwd, argv[1] );
         fs.exists( abs, function( exist ) {
           if (exist) {
             respond(abs);
           }
           else {
-            res.end();
+            done();
           }
         } );
       }
     }
 
-    function respond(cwd) {
-      res.end();
-      instance.cwd = cwd;
+    function respond(dir) {
+      cwd = dir;
+      fs.readdir( cwd, function( err, files ) {
+        if (err) throw( err );
+        done(cwd, files);
+      });
+      
     }
   };
 

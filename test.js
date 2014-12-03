@@ -23,39 +23,43 @@ function testCD() {
     agent = new CD_Agent( e );
   });
 
+  teardown(function(){
+    process.on( 'exit', function() {
+      e.check();
+    } );
+  });
+
   test( 'cwd init', function() {
     assert( agent.cwd === process.cwd() ); 
   });
 
   test( 'cd', function() {
     expectCWD();
-    makeSplitRequest( ['cd'] );
+    eval( ['cd'] );
   });
 
   test( 'cd ~', function() {
     expectCWD();
-    makeSplitRequest( ['cd', '~'] );
+    eval( ['cd', '~'] );
   });
 
   test( 'cd /', function() {
    e.expect( 'cwd', '/' );
-   makeSplitRequest( ['cd', '/'] );
+   eval( ['cd', '/'] );
   }); 
 
   test( 'cd folder', function() {
     e.expect( 'cwd', path.join( __dirname, 'sample' ) );
     e.expect( 'ls', [] );
-    makeSplitRequest( ['cd', 'sample' ] );
+    eval( ['cd', 'sample' ] );
   });
 
-  function makeSplitRequest( argv ) {
-    agent.request( 
-      {}, 
-      {
-        argv: argv,
-        end: function() {
-          process.on( 'exit', e.check );
-        }
+  function eval( argv ) {
+    agent.eval( 
+      argv,
+      function(cwd, files) {
+        e.emit( 'cwd', cwd );
+        e.emit( 'ls', files ); 
       });
   }
   

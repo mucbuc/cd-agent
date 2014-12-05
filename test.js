@@ -20,17 +20,12 @@ function testCD() {
 
   setup(function(){
     e = new Expector();
-    agent = new CD_Agent( e );
   });
 
   teardown(function(){
     process.on( 'exit', function() {
       e.check();
     } );
-  });
-
-  test( 'cwd init', function() {
-    assert( agent.cwd === process.cwd() ); 
   });
 
   test( 'cd', function() {
@@ -55,8 +50,8 @@ function testCD() {
   });
 
   function eval( argv ) {
-    agent.eval( 
-      argv,
+    CD_Agent( 
+      { argv: argv },
       function(cwd, files) {
         e.emit( 'cwd', cwd );
         e.emit( 'ls', files ); 

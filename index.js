@@ -24,7 +24,7 @@ function eval( params, done ) {
     respond(cwd, done);
   }
   else if (argv.length >= 2) {
-    if (argv[1] == '/') {
+    if (!argv[1].indexOf('/')) {
       respond( '/', done);
     }
     else {

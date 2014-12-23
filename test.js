@@ -43,11 +43,11 @@ function testCD() {
    eval( ['cd', '/'] );
   }); 
 
-  // test( 'cd ~/sample', function() {
-  //   e.expect( 'cwd', path.join( path.homedir(), 'work/cd-agent/sample' ) );
-  //   e.expect( 'ls', [] );
-  //   eval( ['cd', '~/work/cd-agent/sample' ] );
-  // });
+/*  test( 'cd ~/sample', function() {
+    e.expect( 'cwd', path.join( path.homedir(), 'work/cd-agent/sample' ) );
+    e.expect( 'ls', [] );
+    eval( ['cd', '~/work/cd-agent/sample' ] );
+  });*/
 
   test( 'cd sample', function() {
     e.expect( 'cwd', path.join( __dirname, 'sample' ) );

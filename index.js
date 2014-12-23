@@ -1,6 +1,6 @@
 var assert = require( 'assert' )
   , fs = require( 'fs' )
-  , path = require( 'path' );
+  , path = require( 'path-extra' );
 
 function eval( params, done ) {
 
@@ -21,20 +21,27 @@ function eval( params, done ) {
   }
 
   if (argv.length == 1) {
-    respond(cwd);
+    respond(cwd, done);
   }
   else if (argv.length >= 2) {
-    if (argv[1] == '~') {
-      respond(cwd);
-    }
-    else if (argv[1] == '/') {
-      respond( '/' );
+    if (argv[1] == '/') {
+      respond( '/', done);
     }
     else {
-      var abs = path.join( cwd, argv[1] );
+      var abs;
+      if (!argv[1].indexOf( '~/' )) {
+        abs = argv[1].replace( '~/', path.join( path.homedir(), '/' ) );
+      }
+      else if (argv[1] == '~' ) {
+        abs = path.homedir();
+      }
+      else {
+        abs = path.join( cwd, argv[1] );  
+      }
+      
       fs.exists( abs, function( exist ) {
         if (exist) {
-          respond(abs);
+          respond(abs, done);
         }
         else {
           done();
@@ -43,7 +50,7 @@ function eval( params, done ) {
     }
   }
 
-  function respond(dir) {
+  function respond(dir, done) {
     fs.readdir( dir, function( err, files ) {
       if (err) throw( err );
       done(dir, files);

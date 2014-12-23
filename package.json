@@ -6,6 +6,9 @@
     "mocha": "*", 
     "expector": "*"
   },
+  "dependencies": {
+    "path-extra": "*"
+  },
   "scripts": {
     "test": "mocha -u tdd --recursive"
   },

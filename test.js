@@ -2,7 +2,7 @@
 
 var assert = require( 'assert' )
   , events = require( 'events' )
-  , path = require( 'path')
+  , path = require( 'path-extra')
   , CD_Agent = require( './index.js' )
   , Expector = require( 'expector' ).Expector
   , util = require( 'util' );
@@ -34,8 +34,8 @@ function testCD() {
   });
 
   test( 'cd ~', function() {
-    expectCWD();
-    eval( ['cd', '~'] );
+    e.expect( 'cwd', path.homedir() );
+    eval( ['cd', '~' ] );
   });
 
   test( 'cd /', function() {
@@ -43,7 +43,13 @@ function testCD() {
    eval( ['cd', '/'] );
   }); 
 
-  test( 'cd folder', function() {
+  // test( 'cd ~/sample', function() {
+  //   e.expect( 'cwd', path.join( path.homedir(), 'work/cd-agent/sample' ) );
+  //   e.expect( 'ls', [] );
+  //   eval( ['cd', '~/work/cd-agent/sample' ] );
+  // });
+
+  test( 'cd sample', function() {
     e.expect( 'cwd', path.join( __dirname, 'sample' ) );
     e.expect( 'ls', [] );
     eval( ['cd', 'sample' ] );
